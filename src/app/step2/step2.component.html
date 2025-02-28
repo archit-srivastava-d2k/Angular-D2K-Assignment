@@ -1,32 +1,42 @@
-<h1>Step 2: Select your config and options</h1>
+<h1>Step 2: Select Config & Options</h1>
 
+<!-- Configurations Dropdown -->
 <div>
-  <label>
-    Config:
+  <label>Config:
     <select (change)="updateConfig($event)">
       <option value="">Choose...</option>
-      <option *ngFor="let config of configs" [value]="config.name">
-        {{ config.name }}
+      <option *ngFor="let config of availableConfigs()" [value]="config.description">
+        {{ config.description }}
       </option>
     </select>
   </label>
 </div>
 
-<!-- ✅ Fix: Ensure *ngIf correctly checks if the selected config exists -->
+<!-- Display configuration details -->
 <div *ngIf="selectedConfig()">
   <p>
-    Range: {{ selectedConfig().range }} miles - 
-    Max speed: {{ selectedConfig().maxSpeed }} - 
-    Cost: {{ selectedConfig().cost }}
+    Range: {{ selectedConfig()?.range }} miles – 
+    Max speed: {{ selectedConfig()?.speed }} mph – 
+    Cost: {{ selectedConfig()?.price | currency }}
   </p>
+</div>
 
-  <label>
-    Tow hitch?
-    <input type="checkbox" [(ngModel)]="towHitch" />
-  </label>
-
-  <label>
-    Yoke steering wheel?
-    <input type="checkbox" [(ngModel)]="yokeSteeringWheel" />
-  </label>
+<!-- Extra Options -->
+<div>
+  <div *ngIf="availableYokeSteeringWheel()">
+    <label>
+      Yoke Steering Wheel ($1,000):
+      <input type="checkbox" 
+             [checked]="yokeSteeringWheel()" 
+             (change)="configurator.yokeSteeringWheel.set(!configurator.yokeSteeringWheel())">
+    </label>
+  </div>
+  <div *ngIf="availableTowHitch()">
+    <label>
+      Tow Hitch Package ($1,000):
+      <input type="checkbox" 
+             [checked]="towHitch()" 
+             (change)="configurator.towHitch.set(!configurator.towHitch())">
+    </label>
+  </div>
 </div>

@@ -1,34 +1,46 @@
-import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ConfiguratorService } from '../configurator.service';
+import { Config } from '../models.type';
+
 @Component({
   selector: 'app-step2',
   standalone: true,
-  imports: [FormsModule,CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './step2.component.html',
-  styleUrl: './step2.component.scss'
+  styleUrls: ['./step2.component.scss']
 })
 export class Step2Component {
-  configs = [
-    { name: 'Choose...', range: '', maxSpeed: '', cost: '' },
-    { name: 'Rear-Wheel Drive', range: '250 miles', maxSpeed: '120', cost: '$45,990.00' },
-    { name: 'Long Range - Dual Motor All-Wheel Drive', range: '310 miles', maxSpeed: '135', cost: '$52,990.00' },
-    { name: 'Performance - Dual Motor All-Wheel Drive', range: '280 miles', maxSpeed: '150', cost: '$58,990.00' },
-    { name: 'Cyberbeast - Tri Motor All-Wheel Drive', range: '320 miles', maxSpeed: '130', cost: '$99,990.00' }
-  ];
+  public configurator = inject(ConfiguratorService);
 
-  // ✅ Correct Signal Usage
-  selectedConfig = signal(this.configs[0]);
+  // Alias signals from the service for ease of use.
+  availableConfigs = this.configurator.availableConfigs;
+  selectedConfig = this.configurator.selectedConfig;
+  yokeSteeringWheel = this.configurator.yokeSteeringWheel;
+  towHitch = this.configurator.towHitch;
+  availableYokeSteeringWheel = this.configurator.availableYokeSteeringWheel;
+  availableTowHitch = this.configurator.availableTowHitch;
 
-  // ✅ Fix: Ensure these properties exist for `ngModel`
-  towHitch = false;
-  yokeSteeringWheel = false;
-
-  updateConfig(event: Event) {
-    const selectedName = (event.target as HTMLSelectElement).value;
-    const config = this.configs.find(cfg => cfg.name === selectedName) || this.configs[0];
-    
-    // ✅ Use `.set()` to update the signal
-    this.selectedConfig.set(config);
+  constructor() {
+    // When Step 2 loads, if a car is selected then fetch its configuration options.
+    const car = this.configurator.currentCar();
+    if (car && car.code) {
+      this.configurator.fetchOptionsForModel(car.code);
+    }
   }
+  
+
+  // Called when the user selects a configuration from the dropdown.
+  updateConfig(event: Event): void {
+    const configDescription = (event.target as HTMLSelectElement).value;
+    const config: Config | undefined = this.availableConfigs().find(
+      cfg => cfg.description === configDescription
+    );
+    console.log(config)
+    console.log(configDescription)
+    this.configurator.selectedConfig.set(config);
+  }
+  
+
 }

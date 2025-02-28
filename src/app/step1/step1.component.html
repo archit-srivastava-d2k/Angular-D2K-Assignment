@@ -1,6 +1,5 @@
 <h1>Step 1: Choose your Model and Color</h1>
 <div class="dropdown">
-
   <div>
     <label>
       Model:
@@ -16,7 +15,10 @@
   <div>
     <label>
       Color:
-      <select (change)="onColorChange($event)" [disabled]="!selectedModel">
+      <select
+        [value]="configurator.selectedColor()"
+        (change)="onColorChange($event)"
+        [disabled]="!selectedModel">
         <option *ngFor="let color of availableColors()" [value]="color">
           {{ color }}
         </option>

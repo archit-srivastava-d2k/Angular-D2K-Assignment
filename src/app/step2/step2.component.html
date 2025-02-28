@@ -1,0 +1,32 @@
+<h1>Step 2: Select your config and options</h1>
+
+<div>
+  <label>
+    Config:
+    <select (change)="updateConfig($event)">
+      <option value="">Choose...</option>
+      <option *ngFor="let config of configs" [value]="config.name">
+        {{ config.name }}
+      </option>
+    </select>
+  </label>
+</div>
+
+<!-- ✅ Fix: Ensure *ngIf correctly checks if the selected config exists -->
+<div *ngIf="selectedConfig()">
+  <p>
+    Range: {{ selectedConfig().range }} miles - 
+    Max speed: {{ selectedConfig().maxSpeed }} - 
+    Cost: {{ selectedConfig().cost }}
+  </p>
+
+  <label>
+    Tow hitch?
+    <input type="checkbox" [(ngModel)]="towHitch" />
+  </label>
+
+  <label>
+    Yoke steering wheel?
+    <input type="checkbox" [(ngModel)]="yokeSteeringWheel" />
+  </label>
+</div>

@@ -1,0 +1,31 @@
+<h1>Step 1: Choose your Model and Color</h1>
+<div class="dropdown">
+
+  <div>
+    <label>
+      Model:
+      <select (change)="onModelChange($event)">
+        <option value="">Choose...</option>
+        <option *ngFor="let model of models()" [value]="model.code">
+          {{ model.description }}
+        </option>
+      </select>
+    </label>
+  </div>
+
+  <div>
+    <label>
+      Color:
+      <select (change)="onColorChange($event)" [disabled]="!selectedModel">
+        <option *ngFor="let color of availableColors()" [value]="color">
+          {{ color }}
+        </option>
+      </select>
+    </label>
+  </div>
+</div>
+
+<div>
+  <!-- The computed image URL updates dynamically -->
+  <img [src]="imageUrl()" alt="Configured Car" *ngIf="imageUrl()" />
+</div>

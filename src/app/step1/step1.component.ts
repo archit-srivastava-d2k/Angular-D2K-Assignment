@@ -17,8 +17,6 @@ export class Step1Component {
   // Use the models from the service
   readonly models = this.configurator.allModels;
 
-  // Full list of colors (for models other than "C")
-  fullColors = ['black.jpg', 'blue.jpg', 'grey.jpg', 'red.jpg', 'white.jpg'];
 
   // Use the service's signals instead of local ones
   get selectedModel() {
@@ -28,6 +26,7 @@ export class Step1Component {
   // Computed signal that returns available colors based on the selected model
   availableColors = computed(() => {
     const currentModel = this.selectedModel;
+    console.log(currentModel);
     if (!currentModel) return [];
     return currentModel.colors.map(c => c.code + '.jpg');
   });

@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ConfiguratorService } from '../configurator.service';
 import { CarOptions, Config } from '../models.type';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-step2',
@@ -15,35 +16,38 @@ import { HttpClient } from '@angular/common/http';
 export class Step2Component implements OnInit {
   public configurator = inject(ConfiguratorService);
   private http = inject(HttpClient);
-  
-  // Holds the configuration options from the API
+  private route = inject(ActivatedRoute);
+
   carOptions: CarOptions | null = null;
 
   ngOnInit(): void {
-    const car = this.configurator.car();
-    console.log('Selected car in Step2:', car);
-    if (car && car.code) {
-      // Use a leading slash to ensure the proper endpoint is hit.
-      this.http.get<CarOptions>(`/options/${car.code}`).subscribe({
-        next: (data) => {
-          console.log('Fetched options:', data);
-          this.carOptions = data;
-          // Reset previous selections for config and extras.
-          this.configurator.selectConfig(null);
-          this.configurator.yoke.set(false);
-          this.configurator.towHitch.set(false);
-        },
-        error: (err) => console.error('Error fetching options:', err)
-      });
+    const carCode = this.route.snapshot.paramMap.get('car');
+    console.log('Selected car code in Step2:', carCode);
+    if (carCode) {
+      this.fetchCarOptions(carCode);
     } else {
       console.error('No car selected - cannot fetch options.');
     }
   }
 
+  fetchCarOptions(code: string): void {
+    this.http.get<CarOptions>(`/options/${code}`).subscribe({
+      next: (data) => {
+        console.log('Fetched options:', data);
+        this.carOptions = data;
+        // Reset previous selections for config and extras.
+        this.configurator.selectConfig(null);
+        this.configurator.yoke.set(false);
+        this.configurator.towHitch.set(false);
+      },
+      error: (err) => console.error('Error fetching options:', err)
+    });
+  }
+
   onConfigChange(event: Event): void {
     const target = event.target as HTMLSelectElement;
-    console.log('Selected config:', target.value);
     const selectedId = target.value;
+    console.log('Selected config id:', selectedId);
     if (!this.carOptions) return;
     const config: Config | undefined = this.carOptions.configs.find(c => c.id === +selectedId);
     console.log('Selected config:', config);

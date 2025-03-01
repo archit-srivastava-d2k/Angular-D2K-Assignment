@@ -1,4 +1,4 @@
-<h2>Step 2: Select Config & Options</h2>
+<h1>Step 2: Select your config and options</h1>
 
 <div>
   <label>
@@ -6,36 +6,29 @@
     <select (change)="onConfigChange($event)">
       <option value="">Choose...</option>
       <option *ngFor="let config of carOptions?.configs" [value]="config.id">
-        {{ config.description }} ({{ config.range }} mi, {{ config.speed }} mph, ${{ config.price }})
+        {{ config.description }}
       </option>
     </select>
   </label>
 </div>
 
-<div *ngIf="configurator.config()">
-  <p>Range: {{ configurator.config()?.range }} miles</p>
-  <p>Max Speed: {{ configurator.config()?.speed }} mph</p>
-  <p>Price: {{ configurator.config()?.price | currency }}</p>
+<!-- Only show the selected config details if one has been chosen -->
+<div *ngIf="configurator.config() as selectedConfig">
+  <p>
+    You selected: {{ selectedConfig.description }}<br>
+    Range: {{ selectedConfig.range }} miles,<br>
+    Max speed: {{ selectedConfig.speed }} mph,<br>
+    Cost: {{ selectedConfig.price | currency }}
+  </p>
 </div>
 
-<!-- Additional Options -->
-<h3>Additional Options</h3>
-<div>
+<div *ngIf="carOptions">
   <label>
-    <input type="checkbox" 
-           [disabled]="!carOptions?.yoke" 
-           [checked]="configurator.yoke()" 
-           (change)="toggleYoke()">
-    Yoke Steering Wheel (+$1,000)
+    Tow hitch?
+    <input type="checkbox" (change)="toggleTowHitch()" [checked]="configurator.towHitch()" />
+  </label>
+  <label>
+    Yoke steering wheel?
+    <input type="checkbox" (change)="toggleYoke()" [checked]="configurator.yoke()" />
   </label>
 </div>
-<div>
-  <label>
-    <input type="checkbox" 
-           [disabled]="!carOptions?.towHitch" 
-           [checked]="configurator.towHitch()" 
-           (change)="toggleTowHitch()">
-    Tow Hitch (+$1,000)
-  </label>
-</div>
-

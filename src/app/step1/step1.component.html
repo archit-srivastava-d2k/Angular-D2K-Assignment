@@ -1,6 +1,5 @@
 <h1>Step 1: Select Model & Color</h1>
 
-<!-- Model Selection -->
 <div>
   <label>
     Model:
@@ -13,7 +12,6 @@
   </label>
 </div>
 
-<!-- Color Selection -->
 <div *ngIf="configurator.car()">
   <label>
     Color:
@@ -25,7 +23,6 @@
   </label>
 </div>
 
-<!-- Display Image -->
 <div *ngIf="configurator.car() && configurator.color()">
   <img [src]="'https://interstate21.com/tesla-app/images/' + configurator.car()?.code + '/' + configurator.color()?.code + '.jpg'" 
        alt="Car Image" 

@@ -1,17 +1,10 @@
-<!-- <div class="button-group">
-  <a href="/step1"><button routerLink="/step1">Step 1</button></a>
-  <a href="/step2"><button routerLink="/step2">
-    Step 2
-  </button></a>
-  <a href="/step3"><button routerLink="/step3">
-    Step 3
-  </button></a>
-</div>
-<app-step1 /> -->
 <div class="button-group">
-  <a href="/step1"><button routerLink="/step1">Step 1</button></a>
-  <a href="/step2"><button routerLink="/step2">Step 2</button></a>
-  <a href="/step3"><button routerLink="/step3">Step 3</button></a>
+  <button [routerLink]="['/step1']">Step 1</button>
+  <button [routerLink]="['/options', configurator.car()?.code]" 
+          [disabled]="!configurator.car() || !configurator.color()">
+    Step 2
+  </button>
+  <button [routerLink]="['/step3']" [disabled]="!configurator.car() || !configurator.color() || !configurator.config()">Step 3</button>
 </div>
 
-<router-outlet></router-outlet> 
+<router-outlet></router-outlet>

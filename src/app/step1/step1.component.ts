@@ -24,7 +24,6 @@ export class Step1Component {
     });
   }
 
-  // Select Car and set default color (first in the array)
   selectCar(event: Event) {
     const target = event.target as HTMLSelectElement;
     const carCode = target.value;
@@ -34,7 +33,6 @@ export class Step1Component {
       this.configurator.selectCar(selectedCar);
       console.log('Selected car:', selectedCar);
 
-      // ✅ Automatically select the first color if available
       if (selectedCar.colors.length > 0) {
         this.configurator.selectColor(selectedCar.colors[0]);
       } else {

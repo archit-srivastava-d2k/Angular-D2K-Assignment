@@ -1,14 +1,14 @@
-import {Component} from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject } from '@angular/core';
+import { RouterModule } from '@angular/router';
+import { ConfiguratorService } from './configurator.service';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [
-    RouterOutlet,
-  ],
-  templateUrl: './app.component.html'
+  imports: [RouterModule],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-  name = 'Angular';
+  configurator = inject(ConfiguratorService);
 }

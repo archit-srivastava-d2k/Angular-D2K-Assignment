@@ -1,33 +1,33 @@
-<h1>Step 1: Choose your Model and Color</h1>
-<div class="dropdown">
-  <div>
-    <label>
-      Model:
-      <select (change)="onModelChange($event)">
-        <option value="">Choose...</option>
-        <option *ngFor="let model of models()" [value]="model.code">
-          {{ model.description }}
-        </option>
-      </select>
-    </label>
-  </div>
+<h1>Step 1: Select Model & Color</h1>
 
-  <div>
-    <label>
-      Color:
-      <select
-        [value]="configurator.selectedColor()"
-        (change)="onColorChange($event)"
-        [disabled]="!selectedModel">
-        <option *ngFor="let color of availableColors()" [value]="color">
-          {{ color }}
-        </option>
-      </select>
-    </label>
-  </div>
+<!-- Model Selection -->
+<div>
+  <label>
+    Model:
+    <select (change)="selectCar($event)">
+      <option value="">Choose Model...</option>
+      <option *ngFor="let car of carModels" [value]="car.code">
+        {{ car.description }}
+      </option>
+    </select>
+  </label>
 </div>
 
-<div>
-  <!-- The computed image URL updates dynamically -->
-  <img [src]="imageUrl()" alt="Configured Car" *ngIf="imageUrl()" />
+<!-- Color Selection -->
+<div *ngIf="configurator.car()">
+  <label>
+    Color:
+    <select (change)="selectColor($event)">
+      <option *ngFor="let color of configurator.car()?.colors" [value]="color.code">
+        {{ color.description }}
+      </option>
+    </select>
+  </label>
+</div>
+
+<!-- Display Image -->
+<div *ngIf="configurator.car() && configurator.color()">
+  <img [src]="'https://interstate21.com/tesla-app/images/' + configurator.car()?.code + '/' + configurator.color()?.code + '.jpg'" 
+       alt="Car Image" 
+       >
 </div>

@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ConfiguratorService } from '../configurator.service';
-import { Config } from '../models.type';
+import { CarOptions, Config } from '../models.type';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-step2',
@@ -11,36 +12,55 @@ import { Config } from '../models.type';
   templateUrl: './step2.component.html',
   styleUrls: ['./step2.component.scss']
 })
-export class Step2Component {
+export class Step2Component implements OnInit {
   public configurator = inject(ConfiguratorService);
+  private http = inject(HttpClient);
+  
+  // Holds the configuration options from the API
+  carOptions: CarOptions | null = null;
 
-  // Alias signals from the service for ease of use.
-  availableConfigs = this.configurator.availableConfigs;
-  selectedConfig = this.configurator.selectedConfig;
-  yokeSteeringWheel = this.configurator.yokeSteeringWheel;
-  towHitch = this.configurator.towHitch;
-  availableYokeSteeringWheel = this.configurator.availableYokeSteeringWheel;
-  availableTowHitch = this.configurator.availableTowHitch;
-
-  constructor() {
-    // When Step 2 loads, if a car is selected then fetch its configuration options.
-    const car = this.configurator.currentCar();
+  ngOnInit(): void {
+    const car = this.configurator.car();
+    console.log('Selected car in Step2:', car);
     if (car && car.code) {
-      this.configurator.fetchOptionsForModel(car.code);
+      // Use a leading slash to ensure the proper endpoint is hit.
+      this.http.get<CarOptions>(`/options/${car.code}`).subscribe({
+        next: (data) => {
+          console.log('Fetched options:', data);
+          this.carOptions = data;
+          // Reset previous selections for config and extras.
+          this.configurator.selectConfig(null);
+          this.configurator.yoke.set(false);
+          this.configurator.towHitch.set(false);
+        },
+        error: (err) => console.error('Error fetching options:', err)
+      });
+    } else {
+      console.error('No car selected - cannot fetch options.');
     }
   }
-  
 
-  // Called when the user selects a configuration from the dropdown.
-  updateConfig(event: Event): void {
-    const configDescription = (event.target as HTMLSelectElement).value;
-    const config: Config | undefined = this.availableConfigs().find(
-      cfg => cfg.description === configDescription
-    );
-    console.log(config)
-    console.log(configDescription)
-    this.configurator.selectedConfig.set(config);
+  onConfigChange(event: Event): void {
+    const target = event.target as HTMLSelectElement;
+    console.log('Selected config:', target.value);
+    const selectedId = target.value;
+    if (!this.carOptions) return;
+    const config: Config | undefined = this.carOptions.configs.find(c => c.id === +selectedId);
+    console.log('Selected config:', config);
+    if (config) {
+      this.configurator.selectConfig(config);
+    }
   }
-  
 
+  toggleYoke(): void {
+    if (this.carOptions?.yoke) {
+      this.configurator.toggleYoke();
+    }
+  }
+
+  toggleTowHitch(): void {
+    if (this.carOptions?.towHitch) {
+      this.configurator.toggleTowHitch();
+    }
+  }
 }

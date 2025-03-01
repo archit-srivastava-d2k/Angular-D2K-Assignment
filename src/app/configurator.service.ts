@@ -1,51 +1,64 @@
-import { inject, Injectable, signal, Signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
+import { CarModel, Color, CarOptions, Config, SelectedConfig } from './models.type';
 import { HttpClient } from '@angular/common/http';
-import { toSignal } from '@angular/core/rxjs-interop';
-import { CarModel, Color, CarOptions, Config } from './models.type';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class ConfiguratorService {
-  public http = inject(HttpClient);
+  constructor(private http: HttpClient) {}
 
-  // Fetch models and colors from the API
-  readonly allModels: Signal<CarModel[]> = toSignal(
-    this.http.get<CarModel[]>('models'),
-    { initialValue: [] }
-  );
-  readonly allColors: Signal<Color[]> = toSignal(
-    this.http.get<Color[]>('colors'),
-    { initialValue: [] }
-  );
+  car = signal<CarModel | null>(null);
+  color = signal<Color | null>(null);
 
-  // Signals holding the selections from Step 1
-  readonly currentCar = signal<CarModel | undefined>(undefined);
-  readonly selectedColor = signal<Color | string>('');
+  config = signal<Config | null>(null);
+  yoke = signal<boolean>(false);
+  towHitch = signal<boolean>(false);
 
-  // Signals for Step 2 (configurations and extra options)
-  readonly availableConfigs = signal<Config[]>([]);
-  readonly selectedConfig = signal<Config | undefined>(undefined);
+  availableConfigs = signal<Config[]>([]);
+  availableYoke = signal<boolean>(false);
+  availableTowHitch = signal<boolean>(false);
+
+  selectCar(car: CarModel) {
+    this.car.set(car);
+  }
   
-
-  // Signals to indicate if the user has opted for these extras.
-  readonly yokeSteeringWheel = signal<boolean>(false);
-  readonly towHitch = signal<boolean>(false);
-
-  // Signals to indicate if these options are available for the current model.
-  readonly availableYokeSteeringWheel = signal<boolean>(false);
-  readonly availableTowHitch = signal<boolean>(false);
-
+  selectColor(color: Color | null = null) {
+    this.color.set(color);
+  }
+  
+  selectConfig(config: Config | null) {
+    this.config.set(config);
+  }
+  
+  toggleYoke() {
+    this.yoke.set(!this.yoke());
+  }
+  
+  toggleTowHitch() {
+    this.towHitch.set(!this.towHitch());
+  }
+  
   fetchOptionsForModel(modelCode: string): void {
-    this.http.get<CarOptions>(`/options/${modelCode}`).subscribe(response => {
-      // **Set the available configurations from the API response**
-      this.availableConfigs.set(response.configs);
-      this.availableYokeSteeringWheel.set(response.yoke);
-      this.availableTowHitch.set(response.towHitch);
-      // Reset any previously selected configuration and extra options
-      this.selectedConfig.set(undefined);
-      this.yokeSteeringWheel.set(false);
-      this.towHitch.set(false);
+    this.http.get<CarOptions>(`/options/${modelCode}`).subscribe({
+      next: (response) => {
+        console.log('API Response:', response);
+        this.availableConfigs.set(response.configs);
+        this.availableYoke.set(response.yoke);
+        this.availableTowHitch.set(response.towHitch);
+        this.selectConfig(null);
+        this.yoke.set(false);
+        this.towHitch.set(false);
+      },
+      error: (err) => console.error('Error fetching options:', err)
     });
+  }
+  
+  getSelectedConfig(): SelectedConfig {
+    return {
+      car: this.car() || { code: '', description: '', colors: [] },
+      color: this.color() || { code: '', description: '', price: 0 },
+      config: this.config() || { id: 0, description: '', range: 0, speed: 0, price: 0 },
+      yoke: this.yoke(),
+      towHitch: this.towHitch()
+    };
   }
 }

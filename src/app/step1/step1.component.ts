@@ -1,60 +1,59 @@
-import { Component, inject, computed } from '@angular/core';
-import { ReactiveFormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ConfiguratorService } from '../configurator.service';
 import { CarModel, Color } from '../models.type';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-step1',
   standalone: true,
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './step1.component.html',
   styleUrls: ['./step1.component.scss']
 })
 export class Step1Component {
-  // Inject the configurator service.
   public configurator = inject(ConfiguratorService);
+  private http = inject(HttpClient);
+  
+  carModels: CarModel[] = [];
 
-  // Use the models signal from the service.
-  readonly models = this.configurator.allModels;
-
-  // Access the selected model from the service.
-  get selectedModel() {
-    return this.configurator.currentCar();
+  constructor() {
+    this.http.get<CarModel[]>('models').subscribe(data => {
+      this.carModels = data;
+    });
   }
 
-  // Computed signal that returns available colors based on the selected model.
-  availableColors = computed(() => {
-    const currentModel = this.selectedModel;
-    if (!currentModel) return [];
-    return currentModel.colors.map(c => c.code + '.jpg');
-  });
+  // Select Car and set default color (first in the array)
+  selectCar(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const carCode = target.value;
+    const selectedCar = this.carModels.find(car => car.code === carCode);
+    
+    if (selectedCar) {
+      this.configurator.selectCar(selectedCar);
+      console.log('Selected car:', selectedCar);
 
-  // Computed signal that constructs the image URL from the selections.
-  imageUrl = computed(() => {
-    const model = this.selectedModel;
-    const color = this.configurator.selectedColor();
-    if (!model || !color) return '';
-    return `https://interstate21.com/tesla-app/images/${model.code}/${color}`;
-  });
-
-  // When the model changes, update the selected model and reset the color.
-  onModelChange(event: Event): void {
-    const modelCode = (event.target as HTMLSelectElement).value;
-    const selectedModel = this.models().find(m => m.code === modelCode);
-    this.configurator.currentCar.set(selectedModel);
-
-    // Reset color to first available color
-    if (selectedModel && selectedModel.colors.length > 0) {
-      this.configurator.selectedColor.set(selectedModel.colors[0].code + '.jpg');
-    } else {
-      this.configurator.selectedColor.set('');
+      // ✅ Automatically select the first color if available
+      if (selectedCar.colors.length > 0) {
+        this.configurator.selectColor(selectedCar.colors[0]);
+      } else {
+        this.configurator.selectColor();
+      }
     }
   }
 
-  // Update the selected color.
-  onColorChange(event: Event): void {
-    const color = (event.target as HTMLSelectElement).value;
-    this.configurator.selectedColor.set(color);
+  // Select Color
+  selectColor(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const colorCode = target.value;
+    const car = this.configurator.car();
+    
+    if (car) {
+      const selectedColor = car.colors.find(c => c.code === colorCode);
+      if (selectedColor) {
+        this.configurator.selectColor(selectedColor);
+      }
+    }
   }
 }

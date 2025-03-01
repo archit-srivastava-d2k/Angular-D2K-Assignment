@@ -1,42 +1,41 @@
-<h1>Step 2: Select Config & Options</h1>
+<h2>Step 2: Select Config & Options</h2>
 
-<!-- Configurations Dropdown -->
 <div>
-  <label>Config:
-    <select (change)="updateConfig($event)">
+  <label>
+    Config:
+    <select (change)="onConfigChange($event)">
       <option value="">Choose...</option>
-      <option *ngFor="let config of availableConfigs()" [value]="config.description">
-        {{ config.description }}
+      <option *ngFor="let config of carOptions?.configs" [value]="config.id">
+        {{ config.description }} ({{ config.range }} mi, {{ config.speed }} mph, ${{ config.price }})
       </option>
     </select>
   </label>
 </div>
 
-<!-- Display configuration details -->
-<div *ngIf="selectedConfig()">
-  <p>
-    Range: {{ selectedConfig()?.range }} miles – 
-    Max speed: {{ selectedConfig()?.speed }} mph – 
-    Cost: {{ selectedConfig()?.price | currency }}
-  </p>
+<div *ngIf="configurator.config()">
+  <p>Range: {{ configurator.config()?.range }} miles</p>
+  <p>Max Speed: {{ configurator.config()?.speed }} mph</p>
+  <p>Price: {{ configurator.config()?.price | currency }}</p>
 </div>
 
-<!-- Extra Options -->
+<!-- Additional Options -->
+<h3>Additional Options</h3>
 <div>
-  <div *ngIf="availableYokeSteeringWheel()">
-    <label>
-      Yoke Steering Wheel ($1,000):
-      <input type="checkbox" 
-             [checked]="yokeSteeringWheel()" 
-             (change)="configurator.yokeSteeringWheel.set(!configurator.yokeSteeringWheel())">
-    </label>
-  </div>
-  <div *ngIf="availableTowHitch()">
-    <label>
-      Tow Hitch Package ($1,000):
-      <input type="checkbox" 
-             [checked]="towHitch()" 
-             (change)="configurator.towHitch.set(!configurator.towHitch())">
-    </label>
-  </div>
+  <label>
+    <input type="checkbox" 
+           [disabled]="!carOptions?.yoke" 
+           [checked]="configurator.yoke()" 
+           (change)="toggleYoke()">
+    Yoke Steering Wheel (+$1,000)
+  </label>
 </div>
+<div>
+  <label>
+    <input type="checkbox" 
+           [disabled]="!carOptions?.towHitch" 
+           [checked]="configurator.towHitch()" 
+           (change)="toggleTowHitch()">
+    Tow Hitch (+$1,000)
+  </label>
+</div>
+

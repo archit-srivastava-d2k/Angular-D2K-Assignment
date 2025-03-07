@@ -1,34 +1,85 @@
-<h1>Step 2: Select your config and options</h1>
+<!-- <div class="config-panel">
+  <h2>Select Configuration</h2>
+  <label for="configSelect">Config:</label>
+  <select id="configSelect" (change)="onConfigChange($event)">
+    <option [value]="undefined">Choose...</option>
+    <option *ngFor="let option of allOptions()" [value]="option.code">
+      {{ option.Config.description }}
+    </option>
+  </select>
+</div> -->
 
-<div>
-  <label>
-    Config:
-    <select (change)="onConfigChange($event)">
-      <option value="">Choose...</option>
-      <option *ngFor="let config of carOptions?.configs" [value]="config.id">
-        {{ config.description }}
-      </option>
-    </select>
-  </label>
+<h1>Step 2: Choose your Configuration</h1>
+
+<div class="summary">
+  <h2>Your Selection</h2>
+  <p><strong>Model:</strong> {{ modelDescription }}</p>
+  <p><strong>Color:</strong> {{ colorDescription }}</p>
 </div>
 
-<!-- Only show the selected config details if one has been chosen -->
-<div *ngIf="configurator.config() as selectedConfig">
-  <p>
-    You selected: {{ selectedConfig.description }}<br>
-    Range: {{ selectedConfig.range }} miles,<br>
-    Max speed: {{ selectedConfig.speed }} mph,<br>
-    Cost: {{ selectedConfig.price | currency }}
-  </p>
-</div>
+@if (selectedModel()) {
+  <div class="config-panel">
+    <h2>Select Configuration</h2>
+    <div>
+      <label for="configSelect">Configuration:</label>
+      <select id="configSelect" (change)="onConfigChange($event)">
+        <option value="">Choose...</option>
+        @for (config of availableConfigs(); track config.id) {
+          <option [value]="config.id">
+            {{ config.description }} ({{ config.price | currency }})
+          </option>
+        }
+      </select>
+    </div>
 
-<div *ngIf="carOptions">
-  <label>
-    Tow hitch?
-    <input type="checkbox" (change)="toggleTowHitch()" [checked]="configurator.towHitch()" />
-  </label>
-  <label>
-    Yoke steering wheel?
-    <input type="checkbox" (change)="toggleYoke()" [checked]="configurator.yoke()" />
-  </label>
-</div>
+    @if (selectedConfig()) {
+      <div class="config-details">
+        <h3>Configuration Details</h3>
+        <p><strong>Range:</strong> {{ selectedConfig()?.range }} miles</p>
+        <p><strong>Max Speed:</strong> {{ selectedConfig()?.speed }} mph</p>
+      </div>
+    }
+
+    <div class="options">
+      <h3>Additional Options</h3>
+
+      @if (yokeAvailable()) {
+        <div class="option">
+          <input
+            type="checkbox"
+            id="yoke"
+            [checked]="selectedYoke()"
+            (change)="onYokeChange($event)"
+          >
+          <label for="yoke">Yoke Steering Wheel ($1,000)</label>
+        </div>
+      }
+
+      @if (towHitchAvailable()) {
+        <div class="option">
+          <input
+            type="checkbox"
+            id="towHitch"
+            [checked]="selectedTowHitch()"
+            (change)="onTowHitchChange($event)"
+          >
+          <label for="towHitch">Tow Hitch Package ($1,000)</label>
+        </div>
+      }
+    </div>
+
+    <div class="total-price">
+      <h3>Total Price: {{ totalPrice() | currency }}</h3>
+    </div>
+  </div>
+} @else {
+  <div class="no-model-selected">
+    <p>Please select a model and color in Step 1 first.</p>
+  </div>
+}
+@if (imageUrl()) {
+  <div>
+    <img [src]="imageUrl()" alt="Tesla Model" />
+  </div>
+}
+

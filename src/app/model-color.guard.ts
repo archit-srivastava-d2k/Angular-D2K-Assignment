@@ -1,19 +1,24 @@
-// import { inject } from '@angular/core';
-// import { Router, UrlTree } from '@angular/router';
-// import { ConfiguratorService } from './configurator.service';
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { ConfiguratorService } from './configurator.service';
 
-// export const requireModelAndColorGuard = (): boolean | UrlTree => {
-//   const router = inject(Router);
-//   const configurator = inject(ConfiguratorService);
-//   const model = configurator.currentCar();
-//   const color = configurator.selectedColor();
-//   console.log('Guard check:', { model, color });
-  
-//   // Ensure model is defined and color is a non-empty string.
-//   if (model && typeof color === 'string' && color.trim() !== '') {
-//     return true;
-//   }
-  
-//   // Otherwise, redirect to step1.
-//   return router.parseUrl('/step1');
-// };
+@Injectable({
+  providedIn: 'root'
+})
+export class Step2Guard implements CanActivate {
+
+  constructor(private router: Router, private configuratorService: ConfiguratorService) { }
+
+  canActivate(): boolean {
+    const selectedModel = this.configuratorService.selectedModel();
+    const selectedColor = this.configuratorService.selectedColor();
+
+    if (selectedModel && selectedColor) {
+      return true;
+    } else {
+      this.router.navigate(['/step1']);
+      return false;
+    }
+  }
+
+}

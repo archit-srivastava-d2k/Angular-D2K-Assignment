@@ -1,30 +1,33 @@
-<h1>Step 1: Select Model & Color</h1>
+<h1>Step 1: Choose your Model and Color</h1>
 
 <div>
-  <label>
-    Model:
-    <select (change)="selectCar($event)">
-      <option value="">Choose Model...</option>
-      <option *ngFor="let car of carModels" [value]="car.code">
-        {{ car.description }}
+  <label>Model:</label>
+  <select (change)="onModelChange($event)">
+    <option value="">Choose...</option>
+    @for (model of allModels(); track model.code) {
+      <option [value]="model.code">
+        {{ model.description }}
       </option>
-    </select>
-  </label>
+    }
+  </select>
 </div>
 
-<div *ngIf="configurator.car()">
-  <label>
-    Color:
-    <select (change)="selectColor($event)">
-      <option *ngFor="let color of configurator.car()?.colors" [value]="color.code">
-        {{ color.description }}
+<!-- Color Selection - Only show when a model is selected -->
+@if (selectedModel()) {
+<div>
+  <label>Color:</label>
+  <select (change)="onColorChange($event)">
+    @for (color of availableColors(); track color.code) {
+      <option [value]="color.code">
+        {{ color.description }} ({{ color.price | currency }})
       </option>
-    </select>
-  </label>
+    }
+  </select>
 </div>
+}
 
-<div *ngIf="configurator.car() && configurator.color()">
-  <img [src]="'https://interstate21.com/tesla-app/images/' + configurator.car()?.code + '/' + configurator.color()?.code + '.jpg'" 
-       alt="Car Image" 
-       >
-</div>
+@if (imageUrl()) {
+  <div>
+    <img [src]="imageUrl()" alt="Tesla Model" />
+  </div>
+}

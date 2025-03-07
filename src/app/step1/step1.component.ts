@@ -1,57 +1,61 @@
-import { Component, inject } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+// step1.component.ts
+import { Component, effect, inject } from '@angular/core';
+import { ReactiveFormsModule } from '@angular/forms';
 import { ConfiguratorService } from '../configurator.service';
-import { CarModel, Color } from '../models.type';
-import { HttpClient } from '@angular/common/http';
+import { CommonModule, CurrencyPipe } from '@angular/common';  // Import CurrencyPipe
 
 @Component({
   selector: 'app-step1',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    ReactiveFormsModule,
+    CommonModule,
+    CurrencyPipe  // Add CurrencyPipe
+  ],
   templateUrl: './step1.component.html',
   styleUrls: ['./step1.component.scss']
 })
 export class Step1Component {
-  public configurator = inject(ConfiguratorService);
-  private http = inject(HttpClient);
-  
-  carModels: CarModel[] = [];
+
+  private configuratorService = inject(ConfiguratorService);
+
+  // Expose signals to the template
+  allModels = this.configuratorService.allModels;
+  availableColors = this.configuratorService.availableColors;
+  selectedModel = this.configuratorService.selectedModel;
+  selectedColor = this.configuratorService.selectedColor;
+  imageUrl = this.configuratorService.imageUrl;  // Add imageUrl
+
+
+  onModelChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedModelCode = target.value || null;
+    const model = this.allModels().find(m => m.code === selectedModelCode);
+    if (model) {
+      this.configuratorService.setSelectedModel(model);
+
+      // Automatically select the first color when a model is selected
+      if (model.colors && model.colors.length > 0) {
+        this.configuratorService.setSelectedColor(model.colors[0]);
+      }
+    }
+  }
+
+  onColorChange(event: any) {
+    const selectedColorCode = event.target.value;
+    const color = this.availableColors().find(color => color.code === selectedColorCode);
+    if (color) {
+      this.configuratorService.setSelectedColor(color);
+    }
+  }
 
   constructor() {
-    this.http.get<CarModel[]>('models').subscribe(data => {
-      this.carModels = data;
-    });
-  }
-
-  selectCar(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const carCode = target.value;
-    const selectedCar = this.carModels.find(car => car.code === carCode);
-    
-    if (selectedCar) {
-      this.configurator.selectCar(selectedCar);
-      console.log('Selected car:', selectedCar);
-
-      if (selectedCar.colors.length > 0) {
-        this.configurator.selectColor(selectedCar.colors[0]);
-      } else {
-        this.configurator.selectColor();
-      }
-    }
-  }
-
-  // Select Color
-  selectColor(event: Event) {
-    const target = event.target as HTMLSelectElement;
-    const colorCode = target.value;
-    const car = this.configurator.car();
-    
-    if (car) {
-      const selectedColor = car.colors.find(c => c.code === colorCode);
-      if (selectedColor) {
-        this.configurator.selectColor(selectedColor);
-      }
-    }
-  }
+    console.log(this.configuratorService.allModels());
+    console.log(this.configuratorService.allModels().map((car: any) => car.code));
+effect(() => {
+  console.log(this.configuratorService.selectedModel()?.code);
+  console.log(this.configuratorService.selectedColor()?.code);
+  });
 }
+}
+

@@ -1,10 +1,11 @@
+<!-- Corrected template -->
 <div class="button-group">
-  <button [routerLink]="['/step1']">Step 1</button>
-  <button [routerLink]="['/options', configurator.car()?.code]" 
-          [disabled]="!configurator.car() || !configurator.color()">
+  <button routerLink="step1">Step 1</button>
+  <button routerLink="step2">
     Step 2
   </button>
-  <button [routerLink]="['/step3']" [disabled]="!configurator.car() || !configurator.color() || !configurator.config()">Step 3</button>
+  <button routerLink="step3">
+    Step 3
+  </button>
 </div>
-
 <router-outlet></router-outlet>

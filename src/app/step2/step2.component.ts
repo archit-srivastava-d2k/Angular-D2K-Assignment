@@ -1,70 +1,66 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { ConfiguratorService } from '../configurator.service';
-import { CarOptions, Config } from '../models.type';
-import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute } from '@angular/router';
+import { CarModel, Color, CarOptions, Config, SelectedConfig } from '../models.type';
 
 @Component({
   selector: 'app-step2',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './step2.component.html',
-  styleUrls: ['./step2.component.scss']
+  styleUrl: './step2.component.scss'
 })
-export class Step2Component implements OnInit {
-  public configurator = inject(ConfiguratorService);
-  private http = inject(HttpClient);
-  private route = inject(ActivatedRoute);
+export class Step2Component {
+  public configuratorService = inject(ConfiguratorService);
 
-  carOptions: CarOptions | null = null;
-
-  ngOnInit(): void {
-    const carCode = this.route.snapshot.paramMap.get('car');
-    console.log('Selected car code in Step2:', carCode);
-    if (carCode) {
-      this.fetchCarOptions(carCode);
-    } else {
-      console.error('No car selected - cannot fetch options.');
-    }
+  // Getters for selected model and color information
+  get modelCode(): string {
+    return this.configuratorService.selectedModel()?.code || '';
   }
 
-  fetchCarOptions(code: string): void {
-    this.http.get<CarOptions>(`/options/${code}`).subscribe({
-      next: (data) => {
-        console.log('Fetched options:', data);
-        this.carOptions = data;
-        // Reset previous selections for config and extras.
-        this.configurator.selectConfig(null);
-        this.configurator.yoke.set(false);
-        this.configurator.towHitch.set(false);
-      },
-      error: (err) => console.error('Error fetching options:', err)
-    });
+  get modelDescription(): string {
+    return this.configuratorService.selectedModel()?.description || '';
   }
 
-  onConfigChange(event: Event): void {
+  get colorDescription(): string {
+    return this.configuratorService.selectedColor()?.description || '';
+  }
+
+  // Expose service signals to the template
+  selectedModel = this.configuratorService.selectedModel;
+  selectedColor = this.configuratorService.selectedColor;
+  selectedConfig = this.configuratorService.selectedConfig;
+  availableConfigs = this.configuratorService.availableConfigs;
+  yokeAvailable = this.configuratorService.yokeAvailable;
+  towHitchAvailable = this.configuratorService.towHitchAvailable;
+  selectedYoke = this.configuratorService.selectedYoke;
+  selectedTowHitch = this.configuratorService.selectedTowHitch;
+  totalPrice = this.configuratorService.totalPrice;
+  imageUrl = this.configuratorService.imageUrl;  // Add imageUrl
+
+  // Event handlers for form controls
+  onConfigChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const selectedId = target.value;
-    console.log('Selected config id:', selectedId);
-    if (!this.carOptions) return;
-    const config: Config | undefined = this.carOptions.configs.find(c => c.id === +selectedId);
-    console.log('Selected config:', config);
-    if (config) {
-      this.configurator.selectConfig(config);
+    const configId = target.value;
+    if (configId) {
+      const configIdNum = Number(configId);
+      const config = this.availableConfigs().find(c => c.id === configIdNum);
+      if (config) {
+        this.configuratorService.setSelectedConfig(config);
+      }
+    } else {
+      // Handle the case when no config is selected
+      this.configuratorService.selectedConfig.set(undefined);
     }
   }
 
-  toggleYoke(): void {
-    if (this.carOptions?.yoke) {
-      this.configurator.toggleYoke();
-    }
+  onYokeChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.configuratorService.setSelectedYoke(target.checked);
   }
 
-  toggleTowHitch(): void {
-    if (this.carOptions?.towHitch) {
-      this.configurator.toggleTowHitch();
-    }
+  onTowHitchChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.configuratorService.setSelectedTowHitch(target.checked);
   }
 }

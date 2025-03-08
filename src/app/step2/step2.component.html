@@ -8,20 +8,20 @@
     </option>
   </select>
 </div> -->
-
+<div class="wrapper">
 <h1>Step 2: Choose your Configuration</h1>
 
-<div class="summary">
+<!-- <div class="summary">
   <h2>Your Selection</h2>
   <p><strong>Model:</strong> {{ modelDescription }}</p>
   <p><strong>Color:</strong> {{ colorDescription }}</p>
-</div>
+</div> -->
 
 @if (selectedModel()) {
-  <div class="config-panel">
-    <h2>Select Configuration</h2>
+  <div  class="config-panel">
+    <!-- <h2>Select Configuration</h2> -->
     <div>
-      <label for="configSelect">Configuration:</label>
+      <label  for="configSelect">Configuration:</label>
       <select id="configSelect" (change)="onConfigChange($event)">
         <option value="">Choose...</option>
         @for (config of availableConfigs(); track config.id) {
@@ -78,8 +78,9 @@
   </div>
 }
 @if (imageUrl()) {
-  <div>
+  <div style="display: flex; justify-content: center">
     <img [src]="imageUrl()" alt="Tesla Model" />
   </div>
 }
 
+</div>

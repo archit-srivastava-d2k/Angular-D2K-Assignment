@@ -1,0 +1,20 @@
+label,h3,h2,p{
+color: white;
+}
+.config-panel{
+    background-color: black;
+}abel,h3,h2,p{
+    color: white;
+    }
+ /* Dark theme */
+ .dark {
+    --background-color: #121212;
+    --text-color: #ffffff;
+  }
+  
+  /* Apply the variables to the body */
+.wrapper,.model-color,h3,h2,p,label,.button-group,.config-panel{
+    background-color: var(--background-color);
+    transition: 1s ease-in-out;    
+    color: var(--text-color);
+  }

@@ -8,4 +8,10 @@
     Step 3
   </button>
 </div>
+
+<button (click)="toggleTheme()">
+  {{ configurator.theme() === 'light' ? 'Switch to Dark Mode' : 'Switch to Light Mode' }}
+</button>
+<h2>Welcome, {{ configurator.currentUser() }}!</h2>
+<button (click)="configurator.logout(); router.navigate(['/login'])">Logout</button>
 <router-outlet></router-outlet>

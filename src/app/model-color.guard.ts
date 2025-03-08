@@ -13,12 +13,16 @@ export class Step2Guard implements CanActivate {
     const selectedModel = this.configuratorService.selectedModel();
     const selectedColor = this.configuratorService.selectedColor();
 
-    if (selectedModel && selectedColor) {
-      return true;
+    if (this.configuratorService.isLoggedIn()) {
+      if (selectedModel && selectedColor) {
+        return true;
+      } else {
+        this.router.navigate(['/step1']);
+        return false;
+      }
     } else {
-      this.router.navigate(['/step1']);
+      this.router.navigate(['/login']);
       return false;
     }
   }
-
 }

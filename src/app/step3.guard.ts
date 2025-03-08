@@ -16,10 +16,12 @@ export const Step3Guard: CanActivateFn = () => {
   } else {
     // Redirect to step1 if model or color is not selected
     if (!modelSelected || !colorSelected) {
+      alert('Please select a model and color.');
       router.navigate(['/step1']);
     }
     // Redirect to step2 if config is not selected
     else if (!configSelected) {
+      alert('Please select a configuration.');
       router.navigate(['/step2']);
     }
     return false;

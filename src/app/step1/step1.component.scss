@@ -1,5 +1,28 @@
+
+
 .dropdown{
     display: flex;
     
     margin: 2rem;
 }
+.model-color{
+    background-color: black;
+    display: flex;
+    align-items: center;
+   
+}
+label,h3,h2,p{
+    color: white;
+    }
+ /* Dark theme */
+ .dark {
+    --background-color: #121212;
+    --text-color: #ffffff;
+  }
+  
+  /* Apply the variables to the body */
+.wrapper,.model-color,h2,p,label,.button-group{
+    background-color: var(--background-color);
+    transition: 1s ease-in-out;    
+    color: var(--text-color);
+  }

@@ -1,5 +1,5 @@
 // step1.component.ts
-import { Component, effect, inject } from '@angular/core';
+import { Component, effect, inject, OnInit } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { ConfiguratorService } from '../configurator.service';
 import { CommonModule, CurrencyPipe } from '@angular/common';  // Import CurrencyPipe
@@ -15,7 +15,7 @@ import { CommonModule, CurrencyPipe } from '@angular/common';  // Import Currenc
   templateUrl: './step1.component.html',
   styleUrls: ['./step1.component.scss']
 })
-export class Step1Component {
+export class Step1Component implements OnInit {
 
   private configuratorService = inject(ConfiguratorService);
 
@@ -26,10 +26,16 @@ export class Step1Component {
   selectedColor = this.configuratorService.selectedColor;
   imageUrl = this.configuratorService.imageUrl;  // Add imageUrl
 
+  ngOnInit() {
+    // If there's a selected model but no selected color, select the first color
+    if (this.selectedModel() && !this.selectedColor() && this.availableColors().length > 0) {
+      this.configuratorService.setSelectedColor(this.availableColors()[0]);
+    }
+  }
 
   onModelChange(event: Event) {
     const target = event.target as HTMLSelectElement;
-    const selectedModelCode = target.value || null;
+    const selectedModelCode = target.value;
     const model = this.allModels().find(m => m.code === selectedModelCode);
     if (model) {
       this.configuratorService.setSelectedModel(model);
@@ -41,8 +47,9 @@ export class Step1Component {
     }
   }
 
-  onColorChange(event: any) {
-    const selectedColorCode = event.target.value;
+  onColorChange(event: Event) {
+    const target = event.target as HTMLSelectElement;
+    const selectedColorCode = target.value;
     const color = this.availableColors().find(color => color.code === selectedColorCode);
     if (color) {
       this.configuratorService.setSelectedColor(color);
@@ -52,10 +59,10 @@ export class Step1Component {
   constructor() {
     console.log(this.configuratorService.allModels());
     console.log(this.configuratorService.allModels().map((car: any) => car.code));
-effect(() => {
-  console.log(this.configuratorService.selectedModel()?.code);
-  console.log(this.configuratorService.selectedColor()?.code);
-  });
-}
+    effect(() => {
+      console.log(this.configuratorService.selectedModel()?.code);
+      console.log(this.configuratorService.selectedColor()?.code);
+    });
+  }
 }
 

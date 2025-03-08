@@ -1,33 +1,35 @@
-<h1>Step 1: Choose your Model and Color</h1>
+<div class="wrapper">
+  <h1>Step 1: Choose your Model and Color</h1>
+  <div class="model-color">
+    <div>
+      <label>Model:</label>
+      <select (change)="onModelChange($event)" [value]="selectedModel()?.code || ''">
+        <option value="">Choose...</option>
+        @for (model of allModels(); track model.code) {
+        <option [value]="model.code" [selected]="model.code === selectedModel()?.code">
+          {{ model.description }}
+        </option>
+        }
+      </select>
+    </div>
 
-<div>
-  <label>Model:</label>
-  <select (change)="onModelChange($event)">
-    <option value="">Choose...</option>
-    @for (model of allModels(); track model.code) {
-      <option [value]="model.code">
-        {{ model.description }}
-      </option>
+    <!-- Color Selection - Only show when a model is selected -->
+    @if (selectedModel()) {
+    <div>
+      <label>Color:</label>
+      <select (change)="onColorChange($event)" [value]="selectedColor()?.code || ''">
+        @for (color of availableColors(); track color.code) {
+        <option [value]="color.code" [selected]="color.code === selectedColor()?.code">
+          {{ color.description }} ({{ color.price | currency }})
+        </option>
+        }
+      </select>
+    </div>
     }
-  </select>
-</div>
-
-<!-- Color Selection - Only show when a model is selected -->
-@if (selectedModel()) {
-<div>
-  <label>Color:</label>
-  <select (change)="onColorChange($event)">
-    @for (color of availableColors(); track color.code) {
-      <option [value]="color.code">
-        {{ color.description }} ({{ color.price | currency }})
-      </option>
-    }
-  </select>
-</div>
-}
-
-@if (imageUrl()) {
-  <div>
+  </div>
+  @if (imageUrl()) {
+  <div style="display: flex; justify-content: center">
     <img [src]="imageUrl()" alt="Tesla Model" />
   </div>
-}
+  }
+</div>

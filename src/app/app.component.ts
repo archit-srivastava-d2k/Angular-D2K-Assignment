@@ -1,5 +1,5 @@
-import { Component, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, effect, inject } from '@angular/core';
+import { Router, RouterModule } from '@angular/router';
 import { ConfiguratorService } from './configurator.service';
 
 @Component({
@@ -11,4 +11,15 @@ import { ConfiguratorService } from './configurator.service';
 })
 export class AppComponent {
   configurator = inject(ConfiguratorService);
+  router = inject(Router);
+
+  constructor() {
+    effect(() => {
+      const theme = this.configurator.theme();
+      document.body.classList.toggle('dark', theme === 'dark');
+   } );
+  }
+  toggleTheme() {
+    this.configurator.toggleTheme();
+  }
 }

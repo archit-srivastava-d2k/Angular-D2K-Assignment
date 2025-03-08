@@ -3,14 +3,19 @@ import { HttpClient } from '@angular/common/http';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, of } from 'rxjs';
 import { switchMap, tap } from 'rxjs/operators';
-import { CarModel, CarOptions, Color, Config, SelectedConfig } from './models.type';
-
+import { CarModel, CarOptions, Color, Config, SelectedConfig, User } from './models.type';
 @Injectable({
   providedIn: 'root'
 })
 export class ConfiguratorService {
   private http = inject(HttpClient);
+  private usersKey = 'users';
+  private currentUserKey = 'currentUser';
+  private selectedModelKey = 'selectedModel';
+  private selectedColorKey = 'selectedColor';
 
+  readonly isLoggedIn = signal<boolean>(false);
+  readonly currentUser = signal<string | null>(null);
   // Signal for all car models
   readonly allModels: Signal<CarModel[]> = toSignal(
     this.http.get<CarModel[]>('models'),
@@ -18,7 +23,7 @@ export class ConfiguratorService {
   );
 
   // Signals for selected model and color
-  readonly selectedModel = signal<CarModel| undefined>(undefined);
+  readonly selectedModel = signal<CarModel | undefined>(undefined);
   readonly selectedColor = signal<Color | undefined>(undefined);
   readonly code = this.selectedModel()?.code;
 
@@ -43,7 +48,40 @@ export class ConfiguratorService {
     return this.carOptions()?.configs || [];
   });
 
+  readonly theme = signal<'light'|'dark'> ('light');
+toggleTheme() {
+  this.theme.update(currentTheme => currentTheme === 'light' ? 'dark' : 'light');
+}
   constructor() {
+    const storedUser = localStorage.getItem(this.currentUserKey);
+    if (storedUser) {
+      this.isLoggedIn.set(true);
+      this.currentUser.set(storedUser);
+    }
+
+    // Restore selected model and color from localStorage
+    effect(() => {
+      const models = this.allModels();
+      if (models.length > 0) {
+        const storedModel = localStorage.getItem(this.selectedModelKey);
+        const storedColor = localStorage.getItem(this.selectedColorKey);
+
+        if (storedModel) {
+          const model = models.find(m => m.code === storedModel);
+          if (model) {
+            this.selectedModel.set(model);
+
+            if (storedColor) {
+              const color = model.colors.find(c => c.code === storedColor);
+              if (color) {
+                this.selectedColor.set(color);
+              }
+            }
+          }
+        }
+      }
+    });
+
     // Load car options when model changes
     effect(() => {
       const model = this.selectedModel();
@@ -58,6 +96,7 @@ export class ConfiguratorService {
   // Methods to update selections
   setSelectedModel(model: CarModel) {
     this.selectedModel.set(model);
+    localStorage.setItem(this.selectedModelKey, model.code);
     this.selectedConfig.set(undefined);
     this.selectedYoke.set(false);
     this.selectedTowHitch.set(false);
@@ -65,6 +104,7 @@ export class ConfiguratorService {
 
   setSelectedColor(color: Color) {
     this.selectedColor.set(color);
+    localStorage.setItem(this.selectedColorKey, color.code);
   }
 
   setSelectedConfig(config: Config) {
@@ -138,4 +178,49 @@ export class ConfiguratorService {
     }
     return '';
   });
+
+
+  signup(email: string, password: string): boolean {
+    const users: User[] = JSON.parse(localStorage.getItem(this.usersKey) || '[]');
+    const userExists = users.some(user => user.email === email);
+
+    if (userExists) {
+      alert('User already exists!');
+      return false;
+    }
+
+    users.push({ email, password });
+    localStorage.setItem(this.usersKey, JSON.stringify(users));
+    return true;
+  }
+
+  login(email: string, password: string): boolean {
+    const users: User[] = JSON.parse(localStorage.getItem(this.usersKey) || '[]');
+    const user = users.find(user => user.email === email && user.password === password);
+
+    if (user) {
+      this.isLoggedIn.set(true);
+      this.currentUser.set(email);
+      localStorage.setItem(this.currentUserKey, email);
+      return true;
+    } else {
+      alert('Invalid email or password!');
+      return false;
+    }
+  }
+
+  logout(): void {
+    this.isLoggedIn.set(false);
+    this.currentUser.set(null);
+    localStorage.removeItem(this.currentUserKey);
+    localStorage.removeItem(this.selectedModelKey);
+    localStorage.removeItem(this.selectedColorKey);
+    this.resetOptions();
+  }
+
+
+
+
+
 }
+

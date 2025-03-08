@@ -1,13 +1,40 @@
 <div class="order-container">
-  <h1>Place Your Order</h1>
+  <h2>Complete Your Order</h2>
 
-  <div class="order-form">
-    <!-- Add your order form here -->
-    <p>Your order form content goes here</p>
-  </div>
+  <form class="order-form">
+    <div class="form-group">
+      <label for="name">Full Name</label>
+      <input type="text" id="name" class="form-control" required>
+    </div>
 
-  <div class="navigation-buttons">
-    <a [routerLink]="['/step3']" class="btn btn-secondary">Back to Summary</a>
-    <button class="btn btn-primary">Confirm Order</button>
-  </div>
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="phone">Phone Number</label>
+      <input type="tel" id="phone" class="form-control" required>
+    </div>
+
+    <div class="form-group">
+      <label for="address">Delivery Address</label>
+      <textarea id="address" class="form-control" rows="3" required></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="payment">Payment Method</label>
+      <select id="payment" class="form-control" required>
+        <option value="">Select payment method</option>
+        <option value="credit">Credit Card</option>
+        <option value="financing">Financing</option>
+        <option value="cash">Cash</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <a [routerLink]="['/step3']" class="btn btn-secondary">Back to Summary</a>
+      <button type="submit" class="btn btn-primary">Confirm Order</button>
+    </div>
+  </form>
 </div>

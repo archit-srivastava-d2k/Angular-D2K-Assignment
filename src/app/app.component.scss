@@ -1,0 +1,14 @@
+body{
+    background-color: white;
+}
+.dark {
+    --background-color: #121212;
+    --text-color: #ffffff;
+  }
+  
+  /* Apply the variables to the body */
+.wrapper,.model-color,h2,p,.button-group,button{
+    background-color: var(--background-color);
+    color: var(--text-color);
+  }
+ 

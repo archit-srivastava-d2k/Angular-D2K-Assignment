@@ -1,1 +1,69 @@
-<p>step3 works!</p>
+<h1>Step 3: Order Summary</h1>
+
+<div class="summary-container">
+  <div class="car-summary">
+    <h2>Your Tesla Configuration</h2>
+    <div class="car-details">
+      <p><strong>Model:</strong> {{ modelDescription }}</p>
+      <p><strong>Color:</strong> {{ colorDescription }}</p>
+      <p><strong>Configuration:</strong> {{ configDescription }}</p>
+
+      @if (yokeAvailable() && selectedYoke()) {
+        <p><strong>Yoke Steering Wheel:</strong> Yes</p>
+      }
+
+      @if (towHitchAvailable() && selectedTowHitch()) {
+        <p><strong>Tow Hitch Package:</strong> Yes</p>
+      }
+    </div>
+  </div>
+
+  <div class="cost-breakdown">
+    <h2>Cost Breakdown</h2>
+    <table class="price-table">
+      <tbody>
+        <tr>
+          <td>Base Configuration ({{ configDescription }})</td>
+          <td class="price">{{ configPrice | currency }}</td>
+        </tr>
+        <tr>
+          <td>Color ({{ colorDescription }})</td>
+          <td class="price">{{ colorPrice | currency }}</td>
+        </tr>
+
+        @if (yokeAvailable() && selectedYoke()) {
+          <tr>
+            <td>Yoke Steering Wheel</td>
+            <td class="price">{{ yokePrice | currency }}</td>
+          </tr>
+        }
+
+        @if (towHitchAvailable() && selectedTowHitch()) {
+          <tr>
+            <td>Tow Hitch Package</td>
+            <td class="price">{{ towHitchPrice | currency }}</td>
+          </tr>
+        }
+
+        <tr class="total-row">
+          <td><strong>Total Price</strong></td>
+          <td class="price"><strong>{{ totalPrice() | currency }}</strong></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="car-image">
+    @if (configuratorService.imageUrl()) {
+      <img [src]="configuratorService.imageUrl()" alt="Your Tesla" />
+    }
+  </div>
+
+  <div class="navigation-buttons">
+    <a [routerLink]="['/step1']" class="btn btn-secondary">Back to Model & Color</a>
+    <a [routerLink]="['/step2']" class="btn btn-secondary">Back to Configuration</a>
+    <a [routerLink]="['/order']" class="btn btn-primary">Place Order</a>
+  </div>
+</div>
+
+<router-outlet />
